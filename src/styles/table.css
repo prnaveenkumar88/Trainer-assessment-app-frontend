@@ -1,0 +1,82 @@
+/* ================= TABLE WRAPPER ================= */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+
+/* ================= TABLE ================= */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+
+/* ================= HEADER ================= */
+
+.table thead th {
+  text-align: left;
+  padding: 14px 16px;
+  font-weight: 600;
+
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+
+/* ================= ROWS ================= */
+
+.table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+
+/* row spacing improvement */
+.table tbody tr {
+  height: 52px;
+}
+
+
+/* hover effect */
+.table tbody tr:hover {
+  background: var(--table-row-hover);
+}
+
+
+/* ================= LONG TEXT FIX ================= */
+
+/* prevent long names from stretching rows */
+.table td {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ================= STATUS COLUMN ================= */
+
+.table td:nth-child(4) {
+  font-weight: 500;
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .table {
+    font-size: 13px;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 12px;
+  }
+}

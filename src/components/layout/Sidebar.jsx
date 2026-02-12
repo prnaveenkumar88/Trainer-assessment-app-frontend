@@ -1,0 +1,65 @@
+import { useNavigate } from "react-router-dom";
+import { getRole, logout } from "../../utils/auth";
+
+function Sidebar() {
+
+  const navigate = useNavigate();
+  const role = getRole();
+
+  return (
+    <div className="sidebar">
+
+      <div className="sidebar-inner">
+
+        {/* APP TITLE */}
+        <h3 className="sidebar-title">TechStack</h3>
+
+        {/* NAVIGATION */}
+        <div className="sidebar-menu">
+
+          {role === "admin" && (
+            <button
+              className="sidebar-btn"
+              onClick={() => navigate("/admin")}
+            >
+              Admin Dashboard
+            </button>
+          )}
+
+          {role === "assessor" && (
+            <button
+              className="sidebar-btn"
+              onClick={() => navigate("/assessor")}
+            >
+              Assessor Dashboard
+            </button>
+          )}
+
+          {role === "trainer" && (
+            <button
+              className="sidebar-btn"
+              onClick={() => navigate("/trainer")}
+            >
+              Trainer Dashboard
+            </button>
+          )}
+
+        </div>
+
+        {/* LOGOUT AT BOTTOM */}
+        <div className="sidebar-footer">
+          <button
+            className="sidebar-btn logout-btn"
+            onClick={logout}
+          >
+            Logout
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+export default Sidebar;

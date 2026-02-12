@@ -1,0 +1,46 @@
+/* ================= LIGHT MODE (SOFT COOL LIGHT) ================= */
+
+:root {
+  /* background tones */
+  --bg-main: #e9eef6;
+  --bg-sidebar: #f1f5fb;
+  --bg-card: #f7f9fd;
+
+  /* text */
+  --text-primary: #1f2937;
+  --text-secondary: #64748b;
+
+  /* borders */
+  --border-color: #d7dde7;
+
+  /* table + buttons */
+  --table-header-bg: linear-gradient(90deg,#6366f1,#06b6d4);
+  --table-row-hover: rgba(99,102,241,0.06);
+
+  --button-primary-bg: linear-gradient(90deg,#6366f1,#06b6d4);
+  --button-secondary-bg: transparent;
+
+  --input-bg: #f3f6fb;
+}
+
+
+/* ================= DARK MODE ================= */
+
+[data-theme="dark"] {
+  --bg-main: #0b0f1a;
+  --bg-sidebar: #111827;
+  --bg-card: rgba(25, 32, 55, 0.9);
+
+  --text-primary: #e6edf3;
+  --text-secondary: #9aa4b2;
+
+  --border-color: rgba(255,255,255,0.08);
+
+  --table-header-bg: linear-gradient(90deg,#5eead4,#8b5cf6);
+  --table-row-hover: rgba(255,255,255,0.05);
+
+  --button-primary-bg: linear-gradient(90deg,#5eead4,#8b5cf6);
+  --button-secondary-bg: transparent;
+
+  --input-bg: rgba(0,0,0,0.2);
+}

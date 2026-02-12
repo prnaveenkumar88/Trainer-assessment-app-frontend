@@ -1,0 +1,186 @@
+/* ================= ROOT LAYOUT ================= */
+
+.layout {
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-main);
+  color: var(--text-primary);
+}
+
+.main {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+  background: var(--bg-main);
+}
+
+
+/* ================= PAGE ================= */
+
+.page {
+  width: 100%;
+  max-width: 1400px;     /* limits dashboard width */
+  margin: 0 auto;        /* center horizontally */
+
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 30px;
+  border: 1px solid var(--border-color);
+
+  overflow-x: auto;
+}
+
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.page h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+
+/* ================= TOPBAR ================= */
+
+.topbar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(25,32,55,0.6);
+}
+
+.theme-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* ================= SIDEBAR (OVERLAY MODE) ================= */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -240px;
+  width: 240px;
+  height: 100vh;
+
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+
+  transition: left 0.25s ease;
+  z-index: 1000;
+}
+
+/* sidebar opens only when hovered */
+.sidebar:hover {
+  left: 0;
+}
+
+/* invisible trigger zone on left edge */
+.layout::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 12px;
+  height: 100vh;
+  z-index: 999;
+}
+
+/* open sidebar when cursor touches left edge */
+.layout::before:hover + .sidebar {
+  left: 0;
+}
+
+
+/* ================= SIDEBAR CONTENT ================= */
+
+.sidebar-inner {
+  height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* LOGOUT POSITION FIX */
+.sidebar-footer {
+  margin-top: auto;
+  padding-bottom: 30px;   /* moves logout slightly up */
+}
+
+.sidebar-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sidebar-btn:hover {
+  background: var(--table-row-hover);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 80, 80, 0.15);
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  /* disable hover sidebar on mobile */
+  .sidebar {
+    left: -240px;
+  }
+
+  .layout::before:hover + .sidebar {
+    left: -240px;
+  }
+}
+
+/* ================= TRANSITIONS ================= */
+
+body {
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+
+/* ================= TABLET ================= */
+
+@media (max-width: 1024px) {
+
+  .content {
+    padding: 20px;
+  }
+
+  .page {
+    padding: 20px;
+  }
+}
+

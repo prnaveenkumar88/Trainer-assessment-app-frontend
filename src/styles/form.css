@@ -1,0 +1,131 @@
+/* ================= INPUT ================= */
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  background: var(--input-bg);
+  color: var(--text-primary);
+
+  box-sizing: border-box;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent-color, #6366f1);
+}
+
+
+/* ================= BUTTONS ================= */
+
+.btn-primary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+
+  background: var(--button-primary-bg);
+  color: white;
+
+  cursor: pointer;
+}
+
+.btn-secondary {
+  padding: 8px 14px;
+  border-radius: 8px;
+
+  background: var(--button-secondary-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+
+  cursor: pointer;
+}
+
+.btn-disabled {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  background: rgba(128,128,128,0.2);
+  color: var(--text-secondary);
+
+  cursor: not-allowed;
+}
+
+
+/* ================= FORM GRID ================= */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.form-group label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  background: var(--input-bg);
+  color: var(--text-primary);
+
+  box-sizing: border-box;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+
+/* FULL WIDTH ROW (Scores title, Feedback, Submit button) */
+
+.form-full {
+  grid-column: span 2;
+}
+
+
+/* ================= TABLET ================= */
+
+@media (max-width: 1024px) {
+  .form-grid {
+    gap: 16px;
+  }
+}
+
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-full {
+    grid-column: span 1;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}
