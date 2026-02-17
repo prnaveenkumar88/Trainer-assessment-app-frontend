@@ -2,15 +2,26 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "../services/httpClient";
 import Layout from "../components/layout/Layout";
+import { normalizeAssessmentList } from "../utils/normalize";
 
 function Assessor() {
   const [assessments, setAssessments] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const fetchAssessments = async () => {
-    const res = await httpClient.get("/assessments");
-    setAssessments(res.data);
+    try {
+      setError("");
+      const res = await httpClient.get("/assessments");
+      setAssessments(normalizeAssessmentList(res.data));
+    } catch {
+      setAssessments([]);
+      setError("Unable to load assessments");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -18,7 +29,9 @@ function Assessor() {
   }, []);
 
   const filtered = assessments.filter(a =>
-    a.trainer_name.toLowerCase().includes(search.toLowerCase())
+    (a?.trainer_name || "")
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   return (
@@ -43,48 +56,69 @@ function Assessor() {
           + Create New Assessment
         </button>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Trainer</th>
-              <th>Course</th>
-              <th>Score</th>
-              <th>Attempt</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+        {error && (
+          <p className="auth-error">{error}</p>
+        )}
 
-          <tbody>
-            {filtered.map(a => (
-              <tr key={a.assessment_id}>
-                <td>{a.assessment_id}</td>
-                <td>{a.trainer_name}</td>
-                <td>{a.course_name}</td>
-                <td>{a.total_score}</td>
-                <td>{a.attempt_number}</td>
+        {loading ? (
+          <p style={{ marginTop: "15px" }}>Loading...</p>
+        ) : (
+          <div className="table-wrapper">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Trainer</th>
+                  <th>Course</th>
+                  <th>Score</th>
+                  <th>Attempt</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-                <td>
-                {Number(a.attempt_number) < 3 ? (
-  <button
-    className="btn-secondary"
-    onClick={() =>
-      navigate(`/assessor/edit/${a.assessment_id}`)
-    }
-  >
-    Edit Attempt {Number(a.attempt_number) + 1}
-  </button>
-) : (
-  <button className="btn-disabled" disabled>
-    Completed
-  </button>
-)}
+              <tbody>
+                {filtered.map((a, index) => (
+                  <tr
+                    key={
+                      a.assessment_id ||
+                      `${a.trainer_email || "assessment"}-${index}`
+                    }
+                  >
+                    <td>{a.assessment_id || "-"}</td>
+                    <td>{a.trainer_name || "-"}</td>
+                    <td>{a.course_name || "-"}</td>
+                    <td>{a.total_score}</td>
+                    <td>{a.attempt_number}</td>
 
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td>
+                      {Number(a.attempt_number) < 3 ? (
+                        <button
+                          className="btn-secondary"
+                          onClick={() =>
+                            navigate(
+                              `/assessor/edit/${a.assessment_id}`
+                            )
+                          }
+                          disabled={!a.assessment_id}
+                        >
+                          Edit Attempt {Number(a.attempt_number) + 1}
+                        </button>
+                      ) : (
+                        <button className="btn-disabled" disabled>
+                          Completed
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {!loading && filtered.length === 0 && (
+          <p style={{ marginTop: "15px" }}>No assessments found</p>
+        )}
 
       </div>
     </Layout>

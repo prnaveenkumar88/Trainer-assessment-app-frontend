@@ -76,6 +76,16 @@
   color: var(--text-secondary);
 }
 
+.form-error {
+  color: #ef4444;
+  font-size: 12px;
+}
+
+.form-help {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
 .form-group input,
 .form-group textarea {
   width: 100%;

@@ -1,6 +1,7 @@
 /* ================= ROOT LAYOUT ================= */
 
 .layout {
+  position: relative;
   height: 100vh;
   overflow: hidden;
   background: var(--bg-main);
@@ -62,6 +63,26 @@
   background: rgba(25,32,55,0.6);
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-title {
+  font-weight: 600;
+}
+
+.menu-btn {
+  display: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
 .theme-btn {
   padding: 8px 14px;
   border-radius: 8px;
@@ -87,6 +108,10 @@
   z-index: 1000;
 }
 
+.sidebar.open {
+  left: 0;
+}
+
 /* sidebar opens only when hovered */
 .sidebar:hover {
   left: 0;
@@ -106,6 +131,17 @@
 /* open sidebar when cursor touches left edge */
 .layout::before:hover + .sidebar {
   left: 0;
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
 }
 
 
@@ -153,14 +189,35 @@
 /* ================= MOBILE ================= */
 
 @media (max-width: 768px) {
+  .menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   /* disable hover sidebar on mobile */
   .sidebar {
     left: -240px;
   }
 
-  .layout::before:hover + .sidebar {
+  .sidebar:hover {
     left: -240px;
+  }
+
+  .sidebar.open:hover {
+    left: 0;
+  }
+
+  .layout::before {
+    display: none;
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  .page {
+    padding: 16px;
   }
 }
 

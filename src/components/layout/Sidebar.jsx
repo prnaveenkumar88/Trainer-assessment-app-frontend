@@ -1,13 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { getRole, logout } from "../../utils/auth";
 
-function Sidebar() {
+function Sidebar({ isOpen = false, onNavigate }) {
 
   const navigate = useNavigate();
   const role = getRole();
 
+  const handleNavigate = (path) => {
+    navigate(path);
+    onNavigate?.();
+  };
+
   return (
-    <div className="sidebar">
+    <div className={`sidebar ${isOpen ? "open" : ""}`}>
 
       <div className="sidebar-inner">
 
@@ -20,7 +25,7 @@ function Sidebar() {
           {role === "admin" && (
             <button
               className="sidebar-btn"
-              onClick={() => navigate("/admin")}
+              onClick={() => handleNavigate("/admin")}
             >
               Admin Dashboard
             </button>
@@ -29,7 +34,7 @@ function Sidebar() {
           {role === "assessor" && (
             <button
               className="sidebar-btn"
-              onClick={() => navigate("/assessor")}
+              onClick={() => handleNavigate("/assessor")}
             >
               Assessor Dashboard
             </button>
@@ -38,7 +43,7 @@ function Sidebar() {
           {role === "trainer" && (
             <button
               className="sidebar-btn"
-              onClick={() => navigate("/trainer")}
+              onClick={() => handleNavigate("/trainer")}
             >
               Trainer Dashboard
             </button>

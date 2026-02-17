@@ -1,3 +1,5 @@
+const AUTH_STORAGE_KEYS = ["token", "role", "email", "name"];
+
 export const saveAuth = (token, role, email, name) => {
   localStorage.setItem("token", token);
   localStorage.setItem("role", role);
@@ -25,7 +27,11 @@ export const isLoggedIn = () => {
   return !!localStorage.getItem("token");
 };
 
+export const clearAuth = () => {
+  AUTH_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+};
+
 export const logout = () => {
-  localStorage.clear();
-  window.location.href = "/";
+  clearAuth();
+  window.location.assign("/");
 };

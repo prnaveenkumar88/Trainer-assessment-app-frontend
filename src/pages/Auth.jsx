@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import httpClient from "../services/httpClient";
 import { saveAuth } from "../utils/auth";
+import { normalizeLoginPayload } from "../utils/normalize";
 
 function Auth() {
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,19 +21,25 @@ function Auth() {
         password
       });
 
+      const loginData = normalizeLoginPayload(res.data);
+      if (!loginData) {
+        setError("Invalid login response from server");
+        return;
+      }
+
       saveAuth(
-        res.data.token,
-        res.data.role,
-        res.data.email,
-        res.data.name
+        loginData.token,
+        loginData.role,
+        loginData.email || email,
+        loginData.name
       );
 
-      if (res.data.role === "admin") {
-        window.location.href = "/admin";
-      } else if (res.data.role === "assessor") {
-        window.location.href = "/assessor";
+      if (loginData.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else if (loginData.role === "assessor") {
+        navigate("/assessor", { replace: true });
       } else {
-        window.location.href = "/trainer";
+        navigate("/trainer", { replace: true });
       }
 
     } catch {

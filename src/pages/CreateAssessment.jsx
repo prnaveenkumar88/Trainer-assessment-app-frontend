@@ -1,12 +1,31 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import httpClient from "../services/httpClient";
 import Layout from "../components/layout/Layout";
 import { getName } from "../utils/auth";
+import { normalizeTrainerLookup, SCORE_FIELDS } from "../utils/normalize";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const formatDateOfJoining = (value) => {
+  if (!value) return "";
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "";
+  }
+
+  return parsedDate.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+};
 
 function CreateAssessment() {
 
   const navigate = useNavigate();
+  const trainerRequestRef = useRef(0);
 
   const [form, setForm] = useState({
     trainer_email: "",
@@ -40,6 +59,7 @@ function CreateAssessment() {
 
   const [message, setMessage] = useState("");
   const [trainerError, setTrainerError] = useState("");
+  const [isTrainerLoading, setIsTrainerLoading] = useState(false);
 
   /* ======================
      HANDLE CHANGE
@@ -47,40 +67,84 @@ function CreateAssessment() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    setMessage("");
+
     setForm(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      ...(name === "trainer_email" && !EMAIL_REGEX.test(value)
+        ? {
+            trainer_name: "",
+            date_of_joining: "",
+            branch: "",
+            team: ""
+          }
+        : {})
     }));
 
-    // call API only when email looks valid
-    if (
-      name === "trainer_email" &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    ) {
-      fetchTrainer(value);
+    if (name === "trainer_email") {
+      setTrainerError("");
+
+      if (!EMAIL_REGEX.test(value)) {
+        setIsTrainerLoading(false);
+        trainerRequestRef.current += 1;
+      }
     }
   };
+
+  useEffect(() => {
+    const email = form.trainer_email.trim();
+
+    if (!EMAIL_REGEX.test(email)) {
+      return undefined;
+    }
+
+    const requestId = trainerRequestRef.current + 1;
+    trainerRequestRef.current = requestId;
+
+    const timeoutId = setTimeout(() => {
+      fetchTrainer(email, requestId);
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [form.trainer_email]);
 
   /* ======================
      Fetch Trainer By Email
   ====================== */
-  const fetchTrainer = async (email) => {
+  const fetchTrainer = async (email, requestId) => {
+    setIsTrainerLoading(true);
+
     try {
 
-      const res = await httpClient.get(`/assessments/by-email/${email}`);
+      const res = await httpClient.get(
+        `/assessments/by-email/${encodeURIComponent(email)}`
+      );
+      const trainerData = normalizeTrainerLookup(res.data);
+
+      if (requestId !== trainerRequestRef.current) {
+        return;
+      }
+      if (!trainerData) {
+        throw new Error("Trainer not found");
+      }
 
       setForm(prev => ({
         ...prev,
-        trainer_email: res.data.email,
-        trainer_name: res.data.name,
-        date_of_joining: res.data.date_of_joining,
-        branch: res.data.branch || "",
-        team: res.data.department || ""
+        trainer_email: trainerData.email || email,
+        trainer_name: trainerData.name,
+        date_of_joining: trainerData.date_of_joining,
+        branch: trainerData.branch,
+        team: trainerData.department
       }));
 
       setTrainerError("");
 
     } catch {
+      if (requestId !== trainerRequestRef.current) {
+        return;
+      }
+
       setForm(prev => ({
         ...prev,
         trainer_name: "",
@@ -90,6 +154,10 @@ function CreateAssessment() {
       }));
 
       setTrainerError("Trainer not found");
+    } finally {
+      if (requestId === trainerRequestRef.current) {
+        setIsTrainerLoading(false);
+      }
     }
   };
 
@@ -152,6 +220,9 @@ function CreateAssessment() {
             {trainerError && (
               <span className="form-error">{trainerError}</span>
             )}
+            {isTrainerLoading && (
+              <span className="form-help">Checking trainer...</span>
+            )}
           </div>
 
           {/* TRAINER NAME */}
@@ -170,14 +241,7 @@ function CreateAssessment() {
             <input
               className="input"
               value={
-                form.date_of_joining
-                  ? new Date(form.date_of_joining)
-                      .toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-                      })
-                  : ""
+                formatDateOfJoining(form.date_of_joining)
               }
               disabled
             />
@@ -261,19 +325,7 @@ function CreateAssessment() {
           {/* SCORES */}
           <h3 className="form-full">Scores</h3>
 
-          {[
-            "knowledge_stem",
-            "stem_integration",
-            "updated_stem_info",
-            "course_outline",
-            "language_fluency",
-            "lesson_preparation",
-            "time_management",
-            "student_engagement",
-            "poise_confidence",
-            "voice_modulation",
-            "professional_appearance"
-          ].map(field => (
+          {SCORE_FIELDS.map(field => (
             <div className="form-group" key={field}>
               <label>{field.replace(/_/g, " ")}</label>
               <input

@@ -3,6 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import httpClient from "../services/httpClient";
 import Layout from "../components/layout/Layout";
 import { getRole } from "../utils/auth";
+import {
+  hasAssessmentCoreData,
+  normalizeAssessment,
+  SCORE_FIELDS
+} from "../utils/normalize";
 
 function ViewAssessment() {
 
@@ -10,19 +15,29 @@ function ViewAssessment() {
   const navigate = useNavigate();
 
   const [data, setData] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchAssessment();
-  }, []);
+    const fetchAssessment = async () => {
+      try {
+        setError("");
+        const res = await httpClient.get(`/assessments/${id}`);
+        const normalized = normalizeAssessment(res.data);
 
-  const fetchAssessment = async () => {
-    try {
-      const res = await httpClient.get(`/assessments/${id}`);
-      setData(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        if (!normalized || !hasAssessmentCoreData(normalized)) {
+          setData(null);
+          setError("Assessment details are empty");
+          return;
+        }
+
+        setData(normalized);
+      } catch {
+        setError("Unable to load assessment details");
+      }
+    };
+
+    fetchAssessment();
+  }, [id]);
 
   /* =====================
      BACK NAVIGATION
@@ -38,6 +53,20 @@ function ViewAssessment() {
       navigate("/assessor");
     }
   };
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="page">
+          <h2>Assessment Details</h2>
+          <p>{error}</p>
+          <button className="btn-secondary" onClick={handleBack}>
+            Back
+          </button>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!data) {
     return (
@@ -129,24 +158,12 @@ function ViewAssessment() {
 
           <h3 className="form-full">Scores</h3>
 
-          {[
-            "knowledge_stem",
-            "stem_integration",
-            "updated_stem_info",
-            "course_outline",
-            "language_fluency",
-            "lesson_preparation",
-            "time_management",
-            "student_engagement",
-            "poise_confidence",
-            "voice_modulation",
-            "professional_appearance"
-          ].map(field => (
+          {SCORE_FIELDS.map(field => (
             <div className="form-group" key={field}>
               <label>{field.replace(/_/g, " ")}</label>
               <input
                 className="input"
-                value={data[field]}
+                value={data[field] ?? 0}
                 disabled
               />
             </div>

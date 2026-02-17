@@ -2,33 +2,52 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import httpClient from "../services/httpClient";
 import Layout from "../components/layout/Layout";
+import {
+  hasAssessmentCoreData,
+  normalizeAssessment,
+  SCORE_FIELDS
+} from "../utils/normalize";
 
 function EditAssessment() {
-
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
+    const fetchAssessment = async () => {
+      try {
+        setLoadError("");
+        const res = await httpClient.get(`/assessments/${id}`);
+        const normalized = normalizeAssessment(res.data);
+
+        if (!normalized || !hasAssessmentCoreData(normalized)) {
+          setForm(null);
+          setLoadError("Assessment details are empty");
+          return;
+        }
+
+        setForm({
+          ...normalized,
+          feedback: ""
+        });
+      } catch {
+        setLoadError("Unable to load assessment details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchAssessment();
-  }, []);
-
-  const fetchAssessment = async () => {
-    const res = await httpClient.get(`/assessments/${id}`);
-
-    setForm({
-      ...res.data,
-      feedback: ""
-    });
-  };
+  }, [id]);
 
   /* =====================
      HANDLE CHANGE
   ===================== */
   const handleChange = (e) => {
-
     const { name, value } = e.target;
 
     const limits = {
@@ -47,7 +66,7 @@ function EditAssessment() {
 
     if (limits[name] && Number(value) > limits[name]) return;
 
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -57,7 +76,6 @@ function EditAssessment() {
      SUBMIT
   ===================== */
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     if (!form.feedback) {
@@ -66,35 +84,27 @@ function EditAssessment() {
     }
 
     try {
+      const scores = SCORE_FIELDS.reduce((acc, field) => {
+        const value = Number(form[field]);
+        acc[field] = Number.isFinite(value) ? value : 0;
+        return acc;
+      }, {});
 
       await httpClient.put(`/assessments/${id}/attempt`, {
         attempt_number: Number(form.attempt_number) + 1,
         feedback: form.feedback,
-        scores: {
-          knowledge_stem: Number(form.knowledge_stem),
-          stem_integration: Number(form.stem_integration),
-          updated_stem_info: Number(form.updated_stem_info),
-          course_outline: Number(form.course_outline),
-          language_fluency: Number(form.language_fluency),
-          lesson_preparation: Number(form.lesson_preparation),
-          time_management: Number(form.time_management),
-          student_engagement: Number(form.student_engagement),
-          poise_confidence: Number(form.poise_confidence),
-          voice_modulation: Number(form.voice_modulation),
-          professional_appearance: Number(form.professional_appearance)
-        }
+        scores
       });
 
       setMessage("Assessment updated successfully");
 
       setTimeout(() => navigate("/assessor"), 800);
-
     } catch {
       setMessage("Error updating assessment");
     }
   };
 
-  if (!form) {
+  if (loading) {
     return (
       <Layout>
         <div className="page">Loading...</div>
@@ -102,15 +112,36 @@ function EditAssessment() {
     );
   }
 
+  if (loadError) {
+    return (
+      <Layout>
+        <div className="page">
+          <h2>Edit Assessment</h2>
+          <p>{loadError}</p>
+          <button
+            className="btn-secondary"
+            onClick={() => navigate("/assessor")}
+          >
+            Back
+          </button>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!form) {
+    return null;
+  }
+
   /* =====================
      COMPLETED LOCK
   ===================== */
-  if (form.scorecard_status === "COMPLETED") {
+  if (form.scorecard_status.toUpperCase() === "COMPLETED") {
     return (
       <Layout>
         <div className="page">
           <h2>Assessment Completed</h2>
-          <p>This assessment is locked 🔒</p>
+          <p>This assessment is locked.</p>
 
           <button
             className="btn-secondary"
@@ -126,7 +157,6 @@ function EditAssessment() {
   return (
     <Layout>
       <div className="page">
-
         <div className="page-header">
           <h2>
             Edit Assessment (Attempt {Number(form.attempt_number) + 1})
@@ -141,7 +171,6 @@ function EditAssessment() {
         </div>
 
         <form onSubmit={handleSubmit} className="form-grid">
-
           <div className="form-group">
             <label>Trainer Name</label>
             <input className="input" value={form.trainer_name} disabled />
@@ -149,7 +178,11 @@ function EditAssessment() {
 
           <div className="form-group">
             <label>Trainer Email</label>
-            <input className="input" value={form.trainer_email || ""} disabled />
+            <input
+              className="input"
+              value={form.trainer_email || ""}
+              disabled
+            />
           </div>
 
           <div className="form-group">
@@ -174,26 +207,14 @@ function EditAssessment() {
 
           <h3 className="form-full">Scores</h3>
 
-          {[
-            "knowledge_stem",
-            "stem_integration",
-            "updated_stem_info",
-            "course_outline",
-            "language_fluency",
-            "lesson_preparation",
-            "time_management",
-            "student_engagement",
-            "poise_confidence",
-            "voice_modulation",
-            "professional_appearance"
-          ].map(field => (
+          {SCORE_FIELDS.map((field) => (
             <div className="form-group" key={field}>
               <label>{field.replace(/_/g, " ")}</label>
               <input
                 className="input"
                 type="number"
                 name={field}
-                value={form[field]}
+                value={form[field] ?? 0}
                 onChange={handleChange}
               />
             </div>
@@ -214,11 +235,9 @@ function EditAssessment() {
               Update Attempt
             </button>
           </div>
-
         </form>
 
         {message && <p>{message}</p>}
-
       </div>
     </Layout>
   );

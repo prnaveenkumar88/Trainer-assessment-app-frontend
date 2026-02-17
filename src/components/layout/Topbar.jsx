@@ -1,26 +1,49 @@
 import { useState, useEffect } from "react";
 
-function Topbar() {
-const [theme, setTheme] = useState(
-  document.body.getAttribute("data-theme") || "dark"
-);
+const THEME_STORAGE_KEY = "app-theme";
 
-useEffect(() => {
-  document.body.setAttribute("data-theme", theme);
-}, [theme]);
+function Topbar({ onToggleSidebar }) {
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme === "light" || savedTheme === "dark") {
+      return savedTheme;
+    }
+
+    return document.body.getAttribute("data-theme") || "dark";
+  });
+
+  useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
     <div className="topbar">
-      <div className="topbar-title">
-        Trainer Assessment System
+      <div className="topbar-left">
+        <button
+          type="button"
+          className="menu-btn"
+          onClick={onToggleSidebar}
+          aria-label="Toggle navigation menu"
+        >
+          Menu
+        </button>
+
+        <div className="topbar-title">
+          Trainer Assessment System
+        </div>
       </div>
 
-      <button className="theme-btn" onClick={toggleTheme}>
+      <button
+        type="button"
+        className="theme-btn"
+        onClick={toggleTheme}
+      >
         {theme === "dark" ? "Light Mode" : "Dark Mode"}
       </button>
     </div>
