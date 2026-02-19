@@ -113,3 +113,68 @@ export const normalizeAssessmentList = (payload) => {
     .map((item) => normalizeAssessment(item))
     .filter((item) => hasAssessmentCoreData(item));
 };
+
+export const normalizeAssessmentListResponse = (
+  payload,
+  fallbackPage = 1,
+  fallbackLimit = 25
+) => {
+  const emptyPagination = {
+    total: 0,
+    page: fallbackPage,
+    limit: fallbackLimit,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false
+  };
+
+  if (Array.isArray(payload)) {
+    const items = normalizeAssessmentList(payload);
+    return {
+      items,
+      pagination: {
+        ...emptyPagination,
+        total: items.length
+      }
+    };
+  }
+
+  if (!isObject(payload)) {
+    return {
+      items: [],
+      pagination: emptyPagination
+    };
+  }
+
+  const items = normalizeAssessmentList(payload.items);
+  const rawPagination = isObject(payload.pagination)
+    ? payload.pagination
+    : {};
+
+  const page = safeNumber(rawPagination.page, fallbackPage);
+  const limit = safeNumber(rawPagination.limit, fallbackLimit);
+  const total = safeNumber(rawPagination.total, items.length);
+  const totalPages = Math.max(
+    1,
+    safeNumber(
+      rawPagination.totalPages,
+      Math.ceil(total / Math.max(limit, 1))
+    )
+  );
+
+  return {
+    items,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: Boolean(
+        rawPagination.hasNextPage ?? page < totalPages
+      ),
+      hasPreviousPage: Boolean(
+        rawPagination.hasPreviousPage ?? page > 1
+      )
+    }
+  };
+};

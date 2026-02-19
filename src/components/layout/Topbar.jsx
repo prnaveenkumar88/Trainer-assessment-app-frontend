@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import brandLogo from "../../assets/branding/omotec-logo.gif";
 
 const THEME_STORAGE_KEY = "app-theme";
 
@@ -34,8 +35,16 @@ function Topbar({ onToggleSidebar }) {
           Menu
         </button>
 
-        <div className="topbar-title">
-          Trainer Assessment System
+        <div className="topbar-brand">
+          <img
+            src={brandLogo}
+            alt="OMOTEC Learn Tech For Future"
+            className="brand-logo"
+          />
+
+          <div className="topbar-title">
+            Trainer Assessment System
+          </div>
         </div>
       </div>
 

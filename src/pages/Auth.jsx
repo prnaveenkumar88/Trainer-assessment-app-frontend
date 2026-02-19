@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import httpClient from "../services/httpClient";
 import { saveAuth } from "../utils/auth";
 import { normalizeLoginPayload } from "../utils/normalize";
+import brandLogo from "../assets/branding/omotec-logo.gif";
 
 function Auth() {
   const navigate = useNavigate();
@@ -49,6 +50,11 @@ function Auth() {
 
   return (
     <div className="auth-container">
+      <img
+        src={brandLogo}
+        alt="OMOTEC Learn Tech For Future"
+        className="auth-brand-logo"
+      />
 
       <div className="auth-card">
 
