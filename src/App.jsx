@@ -2,6 +2,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import RegisterTrainer from "./pages/RegisterTrainer";
 import Admin from "./pages/Admin";
 import Assessor from "./pages/Assessor";
 import Trainer from "./pages/Trainer";
@@ -18,6 +20,8 @@ function App() {
 
         {/* LOGIN */}
         <Route path="/" element={<Auth />} />
+        <Route path="/register-trainer" element={<RegisterTrainer />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ================= ADMIN ================= */}
         <Route

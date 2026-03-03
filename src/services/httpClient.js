@@ -25,8 +25,11 @@ httpClient.interceptors.response.use(
     const requestUrl = error?.config?.url || "";
     const isLoginCall =
       typeof requestUrl === "string" && requestUrl.includes("/auth/login");
+    const isPasswordResetCall =
+      typeof requestUrl === "string" &&
+      requestUrl.includes("/auth/forgot-password");
 
-    if (status === 401 && !isLoginCall) {
+    if (status === 401 && !isLoginCall && !isPasswordResetCall) {
       clearAuth();
 
       if (

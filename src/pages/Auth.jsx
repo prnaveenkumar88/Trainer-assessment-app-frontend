@@ -43,8 +43,10 @@ function Auth() {
         navigate("/trainer", { replace: true });
       }
 
-    } catch {
-      setError("Invalid email or password");
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || "Invalid email or password"
+      );
     }
   };
 
@@ -85,6 +87,24 @@ function Auth() {
           <button className="btn-primary" type="submit">
             Login
           </button>
+
+          <div className="auth-links">
+            <button
+              type="button"
+              className="btn-link"
+              onClick={() => navigate("/register-trainer")}
+            >
+              Register trainer
+            </button>
+
+            <button
+              type="button"
+              className="btn-link"
+              onClick={() => navigate("/forgot-password")}
+            >
+              Forgot password?
+            </button>
+          </div>
 
           {error && <p className="auth-error">{error}</p>}
 

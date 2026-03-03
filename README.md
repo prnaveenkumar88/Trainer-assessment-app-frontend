@@ -81,6 +81,10 @@ npm run build
 ### Pages
 - `src/pages/Auth.jsx`
   Login screen and role-based redirect after successful login.
+- `src/pages/RegisterTrainer.jsx`
+  Trainer self-registration screen linked from login.
+- `src/pages/ForgotPassword.jsx`
+  OTP-based forgot-password flow (request OTP email -> verify OTP -> reset password).
 - `src/pages/Admin.jsx`
   Admin dashboard table, server-side filters, pagination, view navigation.
 - `src/pages/Assessor.jsx`
